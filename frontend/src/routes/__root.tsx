@@ -1,10 +1,17 @@
-import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
+import {
+  HeadContent,
+  Outlet,
+  Scripts,
+  createRootRoute,
+} from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
+import { Provider } from "jotai";
 
 import appCss from "../styles.css?url";
 
 export const Route = createRootRoute({
+  component: RootLayout,
   head: () => ({
     meta: [
       {
@@ -27,6 +34,14 @@ export const Route = createRootRoute({
   }),
   shellComponent: RootDocument,
 });
+
+function RootLayout() {
+  return (
+    <Provider>
+      <Outlet />
+    </Provider>
+  );
+}
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
