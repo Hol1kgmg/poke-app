@@ -25,6 +25,15 @@ See [{DIRECTORY_STRUCTURE_FILE}.md](./{DIRECTORY_STRUCTURE_FILE}.md) for details
 - File editing → `Edit` tool
 - File writing → `Write` tool
 
+**When running shell commands, always append `; echo "exit: $?"` to confirm success in a single execution.**
+```bash
+# Good
+pnpm typecheck 2>&1; echo "exit: $?"
+
+# Bad — unclear whether the command succeeded or just produced no output
+pnpm typecheck 2>&1
+```
+
 # Language Settings
 - Responses: {Japanese|English|その他の言語}
 - Thinking: English (for token reduction)

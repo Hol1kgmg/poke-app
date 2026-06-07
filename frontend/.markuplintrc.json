@@ -1,0 +1,14 @@
+{
+  "extends": ["markuplint:recommended"],
+  "parser": {
+    ".tsx": "@markuplint/jsx-parser"
+  },
+  "overrides": {
+    "src/routes/__root.tsx": {
+      "rules": {
+        "permitted-contents": false,
+        "required-element": false
+      }
+    }
+  }
+}
