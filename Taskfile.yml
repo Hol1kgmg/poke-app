@@ -1,0 +1,50 @@
+version: '3'
+
+tasks:
+  install:
+    desc: Install frontend dependencies
+    cmd: pnpm --dir frontend install {{.CLI_ARGS}}
+
+  dev:
+    desc: Start the development server
+    cmd: pnpm --dir frontend dev {{.CLI_ARGS}}
+
+  build:
+    desc: Build for production
+    cmd: pnpm --dir frontend build {{.CLI_ARGS}}
+
+  preview:
+    desc: Preview the production build
+    cmd: pnpm --dir frontend preview {{.CLI_ARGS}}
+
+  generate-routes:
+    desc: Generate TanStack Router route tree
+    cmd: pnpm --dir frontend generate-routes {{.CLI_ARGS}}
+
+  test:
+    desc: Run unit tests
+    cmd: pnpm --dir frontend test {{.CLI_ARGS}}
+
+  test:e2e:
+    desc: Run E2E tests
+    cmd: pnpm --dir frontend test:e2e {{.CLI_ARGS}}
+
+  test:e2e:ui:
+    desc: Run E2E tests with UI
+    cmd: pnpm --dir frontend test:e2e:ui {{.CLI_ARGS}}
+
+  lint:
+    desc: Run linter
+    cmd: pnpm --dir frontend lint {{.CLI_ARGS}}
+
+  lint:markup:
+    desc: Run markup linter
+    cmd: pnpm --dir frontend lint:markup {{.CLI_ARGS}}
+
+  format:
+    desc: Format code
+    cmd: pnpm --dir frontend format {{.CLI_ARGS}}
+
+  typecheck:
+    desc: Run TypeScript type check
+    cmd: pnpm --dir frontend typecheck {{.CLI_ARGS}}
