@@ -17,24 +17,24 @@ app(routes) → widgets → features → entities → shared
 - Lower layers must NOT import from upper layers
 - Same-layer slices must NOT import from each other
 
-## Component Placement Decision Flow
+## UI Component Placement Decision Flow
 
 ```
-Want to create a component?
+Want to create a UI component?
   │
   ① No domain knowledge?
      Yes → shared/ui/
      No  ↓
-  ② Named with "verb + noun" (user action)?
+  ② Named with "verb + noun" (operation or feature)?
      Yes → features/
      No  ↓
   ③ Reusable part depending on a single resource type?
      Yes → entities/xxx/ui/
      No  ↓
-  ④ Composite block combining multiple entities/features?
+  ④ Self-contained composite block combining multiple entities/features?
      Yes → widgets/
      No  ↓
-  ⑤ Page-level composition + data fetching?
+  ⑤ Page-level composition (FSD App + Pages)?
      Yes → app(routes)/
 ```
 
@@ -42,12 +42,12 @@ Want to create a component?
 
 | Layer | Responsibility | Naming |
 |---|---|---|
-| `app(routes)/` | Routing + optional SSR prefetch | — |
+| `app(routes)/` | FSD App + Pages combined — routing, app init, and page composition (assembles widgets) | — |
 | `routes/api/` | BFF layer (outside FSD) — calls external API / backend | — |
-| `widgets/` | Composite UI blocks (page sections) | noun (`order-list-panel`) |
-| `features/` | User actions + all BFF requests (Read & Mutation) | verb + noun (`create-order`) |
-| `entities/` | Resource-specific reusable UI parts + types (no API calls) | resource name (`pokemon`) |
-| `shared/` | Domain-agnostic utilities and UI | — |
+| `widgets/` | Composite UI blocks; may fetch data when widget-specific complex data is needed | noun (`order-list-panel`) |
+| `features/` | BFF requests that depend on entities/shared, or user actions (mutation/interaction) | verb + noun (`create-order`) |
+| `entities/` | Minimal unit of a domain resource — types, UI, state, and resource-specific data fetching | resource name (`pokemon`) |
+| `shared/` | Domain-agnostic utilities and UI — no BFF requests | — |
 
 ## File Placement Rules
 
@@ -58,25 +58,25 @@ Want to create a component?
 
 ### routes/api/ (BFF — outside FSD)
 - HTTP endpoints that call external APIs or backend
-- Called via `fetch('/api/xxx')` from `features/xxx/useXxx.ts`
+- Called via `fetch('/api/xxx')` from any FSD layer
 - Never imported directly by FSD layers
 
 ### widgets/
 - Composite UI block + internal split components (not exported)
-- No data fetching — receive everything via props/context
-- `useXxx.ts` only for complex internal UI state
+- `useXxx.ts` — UI state, or data fetching only when widget-specific complex data cannot be placed in features
 
 ### features/
-- UI for user actions (forms, buttons, modals)
-- `useXxx.ts` — Read (useQuery) and Mutation (fetch) logic, both calling `routes/api/`
+- `*.tsx` — UI for user actions (forms, buttons, modals) — optional, omit if no UI needed
+- `useXxx.ts` — Read (useQuery) and Mutation (fetch) logic, calling `routes/api/`
 - `atoms.ts` — transient state scoped to this feature (form inputs, filters)
+- `types.ts` — feature-specific type definitions
 
 ### entities/
 - `ui/` — resource-specific reusable UI parts
 - `model/types.ts` — domain type definitions
-- `model/adapters.ts` — BFF response → internal type conversion (called from `features/`)
+- `model/adapters.ts` — BFF response → internal type conversion (called from own hooks or `features/`)
 - `model/atoms.ts` — resource-scoped selection state (e.g., `selectedPokemonId`)
-- No API calls, no custom hooks
+- `useXxx.ts` — resource-specific data fetching (when depends only on shared)
 
 ### shared/
 - `ui/` — generic domain-agnostic components (Button, Modal, DataTable)
@@ -92,7 +92,12 @@ Want to create a component?
 | Feature-scoped transient state | `features/xxx/atoms.ts` | `searchQueryAtom`, `formFiltersAtom` |
 | Cross-layer global state | `shared/state/` | `currentUserAtom`, `sidebarOpenAtom` |
 
-Atom references follow the same FSD dependency direction.
+Widgets use local state (useState etc.) for UI-specific transient state — do not promote to atoms.
+
+Atom references follow the same FSD dependency direction:
+- `widgets` may reference `features` / `entities` atoms
+- `features` may reference `entities` atoms
+- Lower layers must NOT reference upper layer atoms
 
 ## Prohibited Patterns
 
@@ -100,9 +105,10 @@ Atom references follow the same FSD dependency direction.
 |---|---|---|
 | 1 | Same-layer slice imports (`entities/a` → `entities/b`) | Compose in the layer above |
 | 2 | Lower layer importing from upper layer (`entities` → `features`) | Pass as props or elevate to `shared/state/` |
-| 3 | BFF requests from `entities/`, `widgets/`, or `shared/` | Place request logic in `features/xxx/useXxx.ts` |
+| 3 | BFF requests from `shared/` | Place in `entities/`, `features/`, or `widgets/` |
 | 4 | Domain logic placed in `shared/` | Place in `entities/` or `features/` |
 | 5 | Direct fetch to external API (bypassing `routes/api/`) | Route through `routes/api/` (BFF) |
-| 6 | Calling another feature's useXxx / fetch logic | Each feature defines its own independently |
-| 7 | `widgets/` fetching data | Receive via props/context |
+| 6 | Calling another slice's useXxx / fetch logic | Each slice defines its own independently |
+| 7 | Skipping a lower layer that could handle the request | Place at the lowest layer that satisfies dependencies |
 | 8 | FSD layers importing `routes/api/` directly | Access via HTTP (`fetch`) only |
+| 9 | Promoting widget-scoped UI state to atoms | Use local state (useState) inside the widget |
