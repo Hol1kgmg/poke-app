@@ -2,6 +2,9 @@
 
 Full reference: [docs/coding-guide.md](../docs/coding-guide.md)
 
+> **Note**: This file contains only the key rules needed for quick reference.
+> Full details and rationale are in the guide above. When in doubt, read the guide.
+
 ## Files and Directories
 
 | Target | Convention | Examples |
@@ -26,7 +29,6 @@ Full reference: [docs/coding-guide.md](../docs/coding-guide.md)
 | Target | Convention | Examples |
 |---|---|---|
 | Adapter functions | `to` prefix | `toPokemon`, `toPokemonList` |
-| serverFn variables | `Fn` suffix | `fetchPokemonFn`, `toggleFavoriteFn` |
 | Atom variables | `Atom` suffix | `selectedPokemonIdAtom` |
 
 ## Layer Naming Patterns

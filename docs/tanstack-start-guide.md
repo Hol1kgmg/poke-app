@@ -6,102 +6,107 @@ FSD アーキテクチャ（[layer-architecture-guide.md](./layer-architecture-g
 
 ## データ取得（Read）
 
-`createFileRoute` の `loader` オプションがサーバーサイドのデータ取得に対応する。
-Read serverFn は `entities/xxx/api/` に定義し、loader から呼び出す。
-取得したデータは `useLoaderData` でコンポーネントから参照する。
+Read は `features/xxx/useXxx.ts` に useQuery で定義し、BFF（`routes/api/`）へ直接 fetch する。
+レスポンスは `entities/xxx/model/adapters.ts` で内部型に変換する。
 
 ```tsx
-// src/entities/order/api/index.ts
-import { createServerFn } from '@tanstack/react-start'
+// src/features/search-product/useSearchProduct.ts
+import { useQuery } from '@tanstack/react-query'
+import { toProductList } from '#/entities/product/model/adapters'
+import type { Product } from '#/entities/product/model/types'
 
-export const fetchOrdersFn = createServerFn({ method: 'GET' })
-  .handler(async () => {
-    const res = await fetch('http://bff/api/orders')
-    if (!res.ok) throw new Error(`BFF error: ${res.status}`)
-    return res.json()
+export function useSearchProduct(query: string) {
+  return useQuery<Product[]>({
+    queryKey: ['products', query],
+    queryFn: async () => {
+      const res = await fetch(`/api/products?q=${encodeURIComponent(query)}`)
+      if (!res.ok) throw new Error(`BFF error: ${res.status}`)
+      return toProductList(await res.json())
+    },
   })
+}
 ```
 
 ```tsx
-// src/entities/order/model/adapters.ts
-import type { BffOrderResponse, Order } from './types'
+// src/features/search-product/SearchProductInput.tsx
+"use client"
+import { useSearchProduct } from './useSearchProduct'
 
-export function toOrder(raw: BffOrderResponse): Order {
-  return {
-    id: raw.order_id,
-    status: raw.order_status,
-    // ...
+export function SearchProductInput() {
+  const { data: products, isLoading } = useSearchProduct('pikachu')
+  // ...
+}
+```
+
+SSR プリフェッチが必要な場合は `app(routes)/` の loader で `prefetchQuery` を呼び出す。
+
+---
+
+## 書き込み（Mutation）
+
+Mutation も `features/xxx/useXxx.ts` に定義し、BFF（`routes/api/`）へ直接 fetch する。
+
+```tsx
+// src/features/create-order/useCreateOrder.ts
+import { toOrder } from '#/entities/order/model/adapters'
+
+export function useCreateOrder() {
+  const createOrder = async (data: { productId: number; quantity: number }) => {
+    const res = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    if (!res.ok) throw new Error(`BFF error: ${res.status}`)
+    return toOrder(await res.json())
   }
-}
-
-export function toOrderList(rawList: BffOrderResponse[]): Order[] {
-  return rawList.map(toOrder)
+  return { createOrder }
 }
 ```
 
 ```tsx
-// src/routes/index.tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { fetchUsersFn } from '@/entities/user/api'
-import { fetchOrdersFn } from '@/entities/order/api'
-import { toUserList } from '@/entities/user/model/adapters'
-import { toOrderList } from '@/entities/order/model/adapters'
-import { DashboardSummary } from '@/widgets/dashboard-summary/DashboardSummary'
+// src/features/create-order/CreateOrderForm.tsx
+"use client"
+import { useCreateOrder } from './useCreateOrder'
 
-export const Route = createFileRoute('/')({
-  loader: async () => {
-    const [rawUsers, rawOrders] = await Promise.all([
-      fetchUsersFn(),
-      fetchOrdersFn(),
-    ])
-    return {
-      users: toUserList(rawUsers),
-      orders: toOrderList(rawOrders),
-    }
-  },
-  component: DashboardPage,
-})
-
-function DashboardPage() {
-  const { users, orders } = Route.useLoaderData()
-  return <DashboardSummary users={users} orders={orders} />
+export function CreateOrderForm() {
+  const { createOrder } = useCreateOrder()
+  const handleSubmit = async () => {
+    await createOrder({ productId: 1, quantity: 2 })
+  }
+  // ...
 }
 ```
 
 ---
 
-## 書き込み（Mutation）— Server Functions
+## API ルート（server.handlers）
 
-`createServerFn` で定義した関数はサーバー上でのみ実行され、クライアントから呼び出せる。
-Mutation serverFn はその操作を所有する `features/xxx/serverFn.ts` に定義する。
+`createFileRoute` の `server.handlers` オプションで HTTP メソッドごとのハンドラを定義できる。
+`src/routes/api/` 以下に配置したファイルが API エンドポイントとして機能する。
 
-```tsx
-// src/features/create-order/serverFn.ts
-import { createServerFn } from '@tanstack/react-start'
+```ts
+// src/routes/api/match.ts
+import { createFileRoute } from '@tanstack/react-router'
 
-export const createOrderFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: { productId: number; quantity: number }) => data)
-  .handler(async ({ data }) => {
-    const res = await fetch('http://bff/api/orders', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    })
-    if (!res.ok) throw new Error(`BFF error: ${res.status}`)
-    return res.json()
-  })
+export const Route = createFileRoute('/api/match')({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
+        const body = await request.json() as { id_a: number; id_b: number }
+        // ...処理...
+        return Response.json(result)
+      },
+    },
+  },
+})
 ```
 
-```tsx
-// src/features/create-order/CreateOrderForm.tsx
-import { createOrderFn } from './serverFn'
+### 注意点
 
-export function CreateOrderForm() {
-  const handleSubmit = async () => {
-    await createOrderFn({ data: { productId: 1, quantity: 2 } })
-  }
-  // ...
-}
-```
+- `@tanstack/react-start/api` の `createAPIFileRoute` は **非推奨**（該当バージョンでは存在しない）
+- ハンドラの引数 `request` は `Request` 型を明示するか、パラメータを分割代入せずそのまま使用する
+- レスポンスは標準の `Response` / `Response.json()` を返す
 
 ---
 

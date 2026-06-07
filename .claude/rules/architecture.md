@@ -2,12 +2,15 @@
 
 Full reference: [docs/layer-architecture-guide.md](../docs/layer-architecture-guide.md)
 
+> **Note**: This file contains only the key rules needed for quick reference.
+> Full details and rationale are in the guide above. When in doubt, read the guide.
+
 ## Layer Dependency Direction
 
 Dependencies flow in one direction only:
 
 ```
-app → widgets → features → entities → shared
+app(routes) → widgets → features → entities → shared
 ```
 
 - Upper layers may import from lower layers
@@ -32,25 +35,31 @@ Want to create a component?
      Yes → widgets/
      No  ↓
   ⑤ Page-level composition + data fetching?
-     Yes → app/
+     Yes → app(routes)/
 ```
 
 ## Layer Responsibilities
 
 | Layer | Responsibility | Naming |
 |---|---|---|
-| `app/` | Routing + data fetching orchestration | — |
+| `app(routes)/` | Routing + optional SSR prefetch | — |
+| `routes/api/` | BFF layer (outside FSD) — calls external API / backend | — |
 | `widgets/` | Composite UI blocks (page sections) | noun (`order-list-panel`) |
-| `features/` | User actions / mutations | verb + noun (`create-order`) |
-| `entities/` | Resource-specific reusable parts + types | resource name (`pokemon`) |
+| `features/` | User actions + all BFF requests (Read & Mutation) | verb + noun (`create-order`) |
+| `entities/` | Resource-specific reusable UI parts + types (no API calls) | resource name (`pokemon`) |
 | `shared/` | Domain-agnostic utilities and UI | — |
 
 ## File Placement Rules
 
-### app/
-- Page components that receive data and pass to widgets/features
-- Loader functions defined inline in the page file
+### app(routes)/
+- Page components that compose widgets/features
+- Loader used only for SSR prefetch when needed
 - No custom hooks
+
+### routes/api/ (BFF — outside FSD)
+- HTTP endpoints that call external APIs or backend
+- Called via `fetch('/api/xxx')` from `features/xxx/useXxx.ts`
+- Never imported directly by FSD layers
 
 ### widgets/
 - Composite UI block + internal split components (not exported)
@@ -59,17 +68,15 @@ Want to create a component?
 
 ### features/
 - UI for user actions (forms, buttons, modals)
-- `serverFn.ts` — mutation serverFn owned by this feature
+- `useXxx.ts` — Read (useQuery) and Mutation (fetch) logic, both calling `routes/api/`
 - `atoms.ts` — transient state scoped to this feature (form inputs, filters)
-- `useXxx.ts` — mutation logic, form validation, post-submit state updates
 
 ### entities/
 - `ui/` — resource-specific reusable UI parts
 - `model/types.ts` — domain type definitions
-- `model/adapters.ts` — BFF response → internal type conversion
+- `model/adapters.ts` — BFF response → internal type conversion (called from `features/`)
 - `model/atoms.ts` — resource-scoped selection state (e.g., `selectedPokemonId`)
-- `api/index.ts` — Read serverFns (GET only)
-- No custom hooks
+- No API calls, no custom hooks
 
 ### shared/
 - `ui/` — generic domain-agnostic components (Button, Modal, DataTable)
@@ -93,8 +100,9 @@ Atom references follow the same FSD dependency direction.
 |---|---|---|
 | 1 | Same-layer slice imports (`entities/a` → `entities/b`) | Compose in the layer above |
 | 2 | Lower layer importing from upper layer (`entities` → `features`) | Pass as props or elevate to `shared/state/` |
-| 3 | UI components calling Read serverFns directly | Pass data via `app/` loader |
+| 3 | BFF requests from `entities/`, `widgets/`, or `shared/` | Place request logic in `features/xxx/useXxx.ts` |
 | 4 | Domain logic placed in `shared/` | Place in `entities/` or `features/` |
-| 5 | Mutation serverFns in `entities/xxx/api/` | Place in `features/xxx/serverFn.ts` |
-| 6 | Calling another feature's serverFn | Each feature defines its own independently |
-| 7 | `widgets/` or `features/` fetching data | Receive via props/context |
+| 5 | Direct fetch to external API (bypassing `routes/api/`) | Route through `routes/api/` (BFF) |
+| 6 | Calling another feature's useXxx / fetch logic | Each feature defines its own independently |
+| 7 | `widgets/` fetching data | Receive via props/context |
+| 8 | FSD layers importing `routes/api/` directly | Access via HTTP (`fetch`) only |

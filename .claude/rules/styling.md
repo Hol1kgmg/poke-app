@@ -2,6 +2,9 @@
 
 Full reference: [docs/styling-guide.md](../docs/styling-guide.md)
 
+> **Note**: This file contains only the key rules needed for quick reference.
+> Full details and rationale are in the guide above. When in doubt, read the guide.
+
 ## CSS Modules
 
 - Place `.module.css` in the **same directory with the same name** as its component

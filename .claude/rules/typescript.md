@@ -2,6 +2,9 @@
 
 Full reference: [docs/coding-guide.md](../docs/coding-guide.md)
 
+> **Note**: This file contains only the key rules needed for quick reference.
+> Full details and rationale are in the guide above. When in doubt, read the guide.
+
 ## Branded Types
 
 Domain identifiers (IDs, names, etc.) must be declared as Branded Types — never as raw primitives.

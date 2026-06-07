@@ -1,47 +1,62 @@
-# Server Function Rules
+# BFF Request Rules
 
-Full reference: [docs/coding-guide.md](../docs/coding-guide.md), [docs/layer-architecture-guide.md](../docs/layer-architecture-guide.md)
+Full reference: [docs/layer-architecture-guide.md](../docs/layer-architecture-guide.md)
+
+> **Note**: This file contains only the key rules needed for quick reference.
+> Full details and rationale are in the guide above. When in doubt, read the guide.
 
 ## Placement and Call Sites
 
 | Type | Define in | Call from |
 |---|---|---|
-| Read (GET) | `entities/xxx/api/index.ts` | `app/` loaders only |
-| Mutation (POST/PUT/DELETE) | `features/xxx/serverFn.ts` | Same feature's components/hooks only |
-| Response adapter | `entities/xxx/model/adapters.ts` | `app/` loader (Read) or `features/xxx/` (after Mutation) |
+| Read (GET) | `features/xxx/useXxx.ts` (useQuery) | Same feature's components only |
+| Mutation (POST/PUT/DELETE) | `features/xxx/useXxx.ts` | Same feature's components only |
+| BFF endpoint | `routes/api/xxx.ts` | `features/` via `fetch('/api/xxx')` |
+| Response adapter | `entities/xxx/model/adapters.ts` | `features/xxx/useXxx.ts` after fetch |
 
-## Read serverFns
+## Read (useQuery)
 
 ```ts
-// ✅ entities/pokemon/api/index.ts
-export const fetchPokemon = createServerFn({ method: "GET" })
-  .inputValidator((id: number) => id)
-  .handler(async ({ data }) => {
-    const raw = await fetch(`/api/pokemon/${data}`).then(r => r.json());
-    return toPokemon(raw as RawPokemon);
+// ✅ features/search-pokemon/useSearchPokemon.ts
+export function useSearchPokemon(id: number) {
+  return useQuery({
+    queryKey: ["pokemon", id],
+    queryFn: async () => {
+      const res = await fetch(`/api/pokemon/${id}`);
+      if (!res.ok) throw new Error(`BFF error: ${res.status}`);
+      return toPokemon(await res.json());
+    },
   });
+}
 ```
 
-- Must include `inputValidator` (omit only when there are no arguments)
-- Called only from `app/` loaders — never from UI components directly
+- Defined in `features/xxx/useXxx.ts` — owned by this feature
+- Called only from the same feature's components
 
 ```ts
-// ❌ Calling Read serverFn from a component
-const pokemon = await fetchPokemon({ data: 1 }); // prohibited in widgets/features
+// ❌ Fetching from entities or widgets
+// entities/pokemon/ui/PokemonCard.tsx に fetch を書いてはいけない
 ```
 
-## Mutation serverFns
+## Mutation (fetch)
 
 ```ts
-// ✅ features/toggle-favorite/serverFn.ts
-export const toggleFavoriteFn = createServerFn({ method: "POST" })
-  .inputValidator((data: { pokemonId: PokemonId }) => data)
-  .handler(async ({ data }) => { /* ... */ });
+// ✅ features/toggle-favorite/useToggleFavorite.ts
+export function useToggleFavorite() {
+  const toggle = async (pokemonId: PokemonId) => {
+    const res = await fetch("/api/favorites", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pokemonId }),
+    });
+    if (!res.ok) throw new Error(`BFF error: ${res.status}`);
+  };
+  return { toggle };
+}
 ```
 
 - Owned exclusively by the feature that defines it
 - Other features must NOT call it — define independently if needed (duplication is acceptable)
-- Must NOT be placed in `entities/xxx/api/` — that directory is Read-only
 
 ## "use client" Boundary
 
