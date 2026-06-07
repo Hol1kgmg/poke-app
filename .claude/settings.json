@@ -20,7 +20,6 @@
       "Bash(git log:*)",
       "Bash(git show:*)",
       "Bash(git diff:*)",
-      "Bash(ls:*)",
       "Bash(echo 'exit: $?')",
       "Bash(tree:*)",
       "Bash(pnpm:*)",
@@ -33,6 +32,16 @@
       "WebSearch",
       "Write(**/*.md)",
       "Skill"
+    ],
+    "deny": [
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(sed:*)",
+      "Bash(awk:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)"
     ]
   },
   "statusLine": {
