@@ -2,7 +2,6 @@
   "hooks": {
     "SessionStart": [
       {
-        "matcher": "startup",
         "hooks": [
           {
             "type": "command",
@@ -14,40 +13,27 @@
   },
   "alwaysThinkingEnabled": true,
   "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": [],
   "permissions": {
     "allow": [
       "Bash(git add:*)",
-      "Bash(git add .:*)",
       "Bash(git status:*)",
       "Bash(git log:*)",
       "Bash(git show:*)",
       "Bash(git diff:*)",
-      "Bash(cd:*)",
       "Bash(ls:*)",
-      "Bash(ls -la:*)",
-      "Bash(ls -l:*)",
-      "Bash(ls -a:*)",
-      "Bash(cat:*)",
+      "Bash(echo 'exit: $?')",
       "Bash(tree:*)",
-      "Bash(tree -L:*)",
-      "Bash(find:*)",
-      "Bash(grep:*)",
-      "Bash(grep -r:*)",
-      "Bash(grep -i:*)",
-      "Bash(grep -n:*)",
+      "Bash(pnpm:*)",
+      "Bash(curl:*)",
       "Bash(which:*)",
       "Bash(type:*)",
       "Bash(source ~/.zshrc)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:nixos.wiki)",
       "WebSearch",
-      "Write(*.md)",
       "Write(**/*.md)",
       "Skill"
-    ],
-    "deny": [],
-    "ask": []
+    ]
   },
   "statusLine": {
     "type": "command",

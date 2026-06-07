@@ -12,27 +12,23 @@ See [{DIRECTORY_STRUCTURE_FILE}.md](./{DIRECTORY_STRUCTURE_FILE}.md) for details
 {※トラブルシューティングのドキュメントが不要な場合はこのセクションごと削除}
 - Setup and daily usage issues: See [{TROUBLESHOOTING_FILE}.md](./{TROUBLESHOOTING_FILE}.md)
 
-# Work Rules
-1. Propose implementation plan
-2. Wait for approval
-3. Start implementation
+# Rules
 
-# Tool Usage Policy
-**Always use dedicated tools for file operations:**
-- File reading → `Read` tool
-- File search → `Glob` tool
-- Content search → `Grep` tool
-- File editing → `Edit` tool
-- File writing → `Write` tool
+## MUST
+- Always propose an implementation plan and wait for approval before starting work.
+- Always append `; echo 'exit: $?'` to every Bash command to confirm success.
+- Always use dedicated tools for file operations:
+  - File reading → `Read`
+  - File editing → `Edit`
+  - File writing → `Write`
+  - File search → `Glob`
+  - Content search → `Grep`
 
-**When running shell commands, always append `; echo "exit: $?"` to confirm success in a single execution.**
-```bash
-# Good
-pnpm typecheck 2>&1; echo "exit: $?"
-
-# Bad — unclear whether the command succeeded or just produced no output
-pnpm typecheck 2>&1
-```
+## MUST NOT
+- Never use `cd` in Bash commands. Use tool-specific directory flags instead:
+  - pnpm → `pnpm <command>`
+  - git → `git <command>`
+- Never use `grep`, `find`, `cat`, `sed`, or `awk` in Bash. Use dedicated tools (`Grep`, `Glob`, `Read`, `Edit`) instead.
 
 # Language Settings
 - Responses: {Japanese|English|その他の言語}
