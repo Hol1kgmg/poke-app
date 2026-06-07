@@ -1,16 +1,10 @@
 # Project Overview
-{プロジェクトの概要を記述 (例: Dotfiles management project for macOS using Nix and Home-Manager)}
+
+ポケモン相性診断アプリ（TanStack Start / React 19 / FSD）
 
 # Setup and Basic Usage
+
 Setup instructions and basic usage are documented in [README.md](./README.md).
-
-# Directory Structure
-{※ディレクトリ構造のドキュメントが不要な場合はこのセクションごと削除}
-See [{DIRECTORY_STRUCTURE_FILE}.md](./{DIRECTORY_STRUCTURE_FILE}.md) for details.
-
-# Troubleshooting
-{※トラブルシューティングのドキュメントが不要な場合はこのセクションごと削除}
-- Setup and daily usage issues: See [{TROUBLESHOOTING_FILE}.md](./{TROUBLESHOOTING_FILE}.md)
 
 # Rules
 
@@ -25,11 +19,17 @@ See [{DIRECTORY_STRUCTURE_FILE}.md](./{DIRECTORY_STRUCTURE_FILE}.md) for details
   - Content search → `Grep`
 
 ## MUST NOT
-- Never use `cd` in Bash commands. Use tool-specific directory flags instead:
-  - pnpm → `pnpm <command>`
-  - git → `git <command>`
-- Never use `grep`, `find`, `cat`, `sed`, or `awk` in Bash. Use dedicated tools (`Grep`, `Glob`, `Read`, `Edit`) instead.
+- Never use `cd` in Bash commands. Use tool-specific directory flags instead.
+- Never use `grep`, `find`, `cat`, `sed`, or `awk` in Bash. Use dedicated tools instead.
+
+# Coding Standards
+
+@.claude/rules/architecture.md
+@.claude/rules/typescript.md
+@.claude/rules/server-functions.md
+@.claude/rules/naming.md
+@.claude/rules/styling.md
 
 # Language Settings
-- Responses: {Japanese|English|その他の言語}
+- Responses: Japanese
 - Thinking: English (for token reduction)
