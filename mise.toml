@@ -1,3 +1,4 @@
 [tools]
 node = "24.15.0"
 pnpm = "11.4.0"
+gitleaks = "8.30.0"

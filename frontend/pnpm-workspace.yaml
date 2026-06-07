@@ -1,2 +1,14 @@
+# ビルドスクリプトの実行を許可するパッケージを明示的に制限（セキュリティホワイトリスト）
+onlyBuiltDependencies:
+  - esbuild
+  - lefthook
+  - lightningcss
+
+# pnpm v11 の新しいビルド許可形式（onlyBuiltDependencies の代替）
 allowBuilds:
-  lefthook: set this to true or false
+  esbuild: true
+  lefthook: true
+  lightningcss: true
+
+# リリース直後のパッケージを自動インストールしないサプライチェーン攻撃対策（48時間 = 2880分）
+minimumReleaseAge: 2880

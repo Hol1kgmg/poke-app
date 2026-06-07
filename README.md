@@ -4,7 +4,26 @@
 
 ## 前提条件
 
-- [mise](https://mise.jdx.dev/) がインストール済みであること
+mise がインストールされ、シェルに統合されていること。
+
+macOS (Homebrew):
+
+```bash
+brew install mise
+```
+
+Homebrew を使わない場合:
+
+```bash
+curl https://mise.run | sh
+```
+
+シェル統合 (zsh):
+
+```bash
+echo 'eval "$(mise activate zsh)"' >> ~/.zshrc
+source ~/.zshrc
+```
 
 ## セットアップ
 
@@ -14,7 +33,7 @@
 mise trust && mise install
 ```
 
-node / pnpm が自動でインストールされます。
+node / pnpm / gitleaks が自動でインストールされます。
 
 ### 2. 依存パッケージのインストール
 
@@ -62,6 +81,7 @@ pnpm test
 
 | チェック | ツール | 自動修正 |
 |---|---|---|
+| シークレットスキャン | gitleaks | なし（検出時はコミット中断） |
 | Lint | oxlint | あり |
 | フォーマット | oxfmt | あり |
 | マークアップ | markuplint | あり |
