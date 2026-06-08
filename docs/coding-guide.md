@@ -196,9 +196,9 @@ widgets/pokemon-panel/
 
 | スコープ | 配置先 |
 |---|---|
-| 特定リソースに紐づく状態（`selectedPokemonId` 等） | `entities/xxx/model/atoms.ts` |
+| 特定リソースに紐づく状態（`selectedPokemonId`・`currentUser` 等） | `entities/xxx/model/atoms.ts` |
 | 特定操作に閉じた一時状態（フォーム入力・フィルター等） | `features/xxx/atoms.ts` |
-| 複数レイヤーをまたぐグローバル状態（`currentUser` 等） | `shared/state/` |
+| ドメイン非依存のグローバル状態（`sidebarOpen`・`theme` 等） | `shared/state/` |
 
 ### 依存方向
 

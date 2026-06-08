@@ -63,7 +63,10 @@ Want to create a UI component?
 
 ### widgets/
 - Composite UI block + internal split components (not exported)
-- `useXxx.ts` — UI state, or data fetching only when widget-specific complex data cannot be placed in features
+- `useXxx.ts` — UI state, or data fetching only when **all three** conditions are met:
+  1. Subscribes to 2+ different entity states simultaneously
+  2. The data fetching logic is not reused by other widgets/features
+  3. Extracting to features would make "verb + noun" naming unnatural
 
 ### features/
 - `*.tsx` — UI for user actions (forms, buttons, modals) — optional, omit if no UI needed
@@ -76,21 +79,22 @@ Want to create a UI component?
 - `model/types.ts` — domain type definitions
 - `model/adapters.ts` — BFF response → internal type conversion (called from own hooks or `features/`)
 - `model/atoms.ts` — resource-scoped selection state (e.g., `selectedPokemonId`)
+- `model/queryKeys.ts` — queryKey definitions for this entity; features/widgets import from here to unify cache keys
 - `useXxx.ts` — resource-specific data fetching (when depends only on shared)
 
 ### shared/
 - `ui/` — generic domain-agnostic components (Button, Modal, DataTable)
 - `lib/` — utility functions
-- `state/` — global state spanning multiple layers (currentUser, theme)
+- `state/` — domain-agnostic global state only (sidebarOpen, theme); domain concepts like `currentUser` belong in `entities/`
 - No BFF communication, no response transformation, no custom hooks
 
 ## Atom Placement
 
 | Scope | Location | Examples |
 |---|---|---|
-| Specific resource | `entities/xxx/model/atoms.ts` | `selectedPokemonIdAtom` |
+| Specific resource | `entities/xxx/model/atoms.ts` | `selectedPokemonIdAtom`, `currentUserAtom` |
 | Feature-scoped transient state | `features/xxx/atoms.ts` | `searchQueryAtom`, `formFiltersAtom` |
-| Cross-layer global state | `shared/state/` | `currentUserAtom`, `sidebarOpenAtom` |
+| Domain-agnostic global state | `shared/state/` | `sidebarOpenAtom`, `themeAtom` |
 
 Widgets use local state (useState etc.) for UI-specific transient state — do not promote to atoms.
 
