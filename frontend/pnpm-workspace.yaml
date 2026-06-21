@@ -1,3 +1,6 @@
+packages:
+  - "."
+
 # ビルドスクリプトの実行を許可するパッケージを明示的に制限（セキュリティホワイトリスト）
 onlyBuiltDependencies:
   - esbuild

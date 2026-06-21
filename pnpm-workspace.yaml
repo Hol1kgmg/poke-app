@@ -1,3 +1,6 @@
+packages:
+  - "frontend"
+
 allowBuilds:
   lefthook: true
   lightningcss: true
