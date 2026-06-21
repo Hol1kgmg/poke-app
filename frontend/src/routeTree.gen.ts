@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPokemonListRouteImport } from './routes/api/pokemon-list'
 import { Route as ApiMatchRouteImport } from './routes/api/match'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPokemonListRoute = ApiPokemonListRouteImport.update({
+  id: '/api/pokemon-list',
+  path: '/api/pokemon-list',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiMatchRoute = ApiMatchRouteImport.update({
@@ -26,27 +32,31 @@ const ApiMatchRoute = ApiMatchRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/match': typeof ApiMatchRoute
+  '/api/pokemon-list': typeof ApiPokemonListRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/match': typeof ApiMatchRoute
+  '/api/pokemon-list': typeof ApiPokemonListRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api/match': typeof ApiMatchRoute
+  '/api/pokemon-list': typeof ApiPokemonListRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/match'
+  fullPaths: '/' | '/api/match' | '/api/pokemon-list'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/match'
-  id: '__root__' | '/' | '/api/match'
+  to: '/' | '/api/match' | '/api/pokemon-list'
+  id: '__root__' | '/' | '/api/match' | '/api/pokemon-list'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiMatchRoute: typeof ApiMatchRoute
+  ApiPokemonListRoute: typeof ApiPokemonListRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/pokemon-list': {
+      id: '/api/pokemon-list'
+      path: '/api/pokemon-list'
+      fullPath: '/api/pokemon-list'
+      preLoaderRoute: typeof ApiPokemonListRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/match': {
@@ -71,6 +88,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiMatchRoute: ApiMatchRoute,
+  ApiPokemonListRoute: ApiPokemonListRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -6,11 +6,7 @@ type Props = {
   imageUrl: string;
 };
 
-export function PokemonCard({ name, imageUrl }: Props) {
-  return (
-    <div className={styles.pokemon}>
+export const PokemonCard = ({ name, imageUrl }: Props) => <div className={styles.pokemon}>
       <img src={imageUrl} alt={name} className={styles.image} />
       <p className={styles.pokemonName}>{name}</p>
-    </div>
-  );
-}
+    </div>;

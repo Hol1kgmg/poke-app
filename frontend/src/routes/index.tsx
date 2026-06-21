@@ -1,9 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { DiagnoseForm } from "#/features/diagnose-pokemon/DiagnoseForm";
+import { TopPage } from "#/pages/Top";
 
-export const Route = createFileRoute("/")({ component: Home });
-
-function Home() {
-  return <DiagnoseForm />;
-}
+export const Route = createFileRoute("/")({ component: TopPage });

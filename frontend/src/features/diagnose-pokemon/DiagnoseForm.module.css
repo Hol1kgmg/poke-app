@@ -1,6 +1,6 @@
 .container {
   max-width: 480px;
-  margin: 4rem auto;
+  margin: 4rem auto 0;
   padding: 2rem;
   text-align: center;
 }
@@ -23,12 +23,10 @@
   gap: 1rem;
 }
 
-.input {
-  width: 140px;
-  padding: 0.5rem 0.75rem;
+.select {
+  width: 200px;
   font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  text-align: left;
 }
 
 .button {
@@ -51,21 +49,4 @@
   margin-top: 1rem;
   color: #c0392b;
   font-size: 0.9rem;
-}
-
-.result {
-  margin-top: 2rem;
-}
-
-.pokemons {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  margin-bottom: 1rem;
-}
-
-.score {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin: 0;
 }

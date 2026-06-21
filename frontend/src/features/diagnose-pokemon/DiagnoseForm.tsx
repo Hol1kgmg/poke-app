@@ -1,81 +1,95 @@
 "use client";
 
 import { useState } from "react";
+import Select, { components } from "react-select";
+import type { InputProps, GroupBase } from "react-select";
+import { useAtomValue } from "jotai";
 
-import { PokemonCard } from "#/entities/pokemon/ui/PokemonCard";
+import { isJaAtom } from "#/shared/state/langAtom";
 
-import { toMatchResult } from "./adapters";
-import type { MatchRequest, MatchResult } from "./types";
+import { useDiagnosePokemon } from "./useDiagnosePokemon";
+import type { PokemonOption } from "./usePokemonOptions";
+import { usePokemonOptions } from "./usePokemonOptions";
 import styles from "./DiagnoseForm.module.css";
 
-export function DiagnoseForm() {
-  const [idA, setIdA] = useState("");
-  const [idB, setIdB] = useState("");
-  const [result, setResult] = useState<MatchResult | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+const SelectInput = ({ "aria-activedescendant": ariaActiveDescendant, ...props }: InputProps<PokemonOption, boolean, GroupBase<PokemonOption>>) => (
+  <components.Input {...props} aria-activedescendant={ariaActiveDescendant || undefined} />
+);
+
+const i18n = {
+  ja: {
+    title: "ポケモン相性診断",
+    placeholderA: "ポケモンA を選択",
+    placeholderB: "ポケモンB を選択",
+    submit: "診断する",
+    submitting: "診断中…",
+    error: "IDが正しくないか、存在しないポケモンです。",
+  },
+  en: {
+    title: "Pokémon Compatibility",
+    placeholderA: "Select Pokémon A",
+    placeholderB: "Select Pokémon B",
+    submit: "Diagnose",
+    submitting: "Diagnosing…",
+    error: "Invalid Pokémon. Please check the selection.",
+  },
+} as const;
+
+export const DiagnoseForm = () => {
+  const [selectedA, setSelectedA] = useState<PokemonOption | null>(null);
+  const [selectedB, setSelectedB] = useState<PokemonOption | null>(null);
+  const isJa = useAtomValue(isJaAtom);
+  const t = isJa ? i18n.ja : i18n.en;
+  const { options, loading: optionsLoading } = usePokemonOptions();
+  const { diagnose, loading: diagnosing, error } = useDiagnosePokemon();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setResult(null);
-    setLoading(true);
-    try {
-      const body: MatchRequest = { id_a: Number(idA), id_b: Number(idB) };
-      const res = await fetch("/api/match", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) throw new Error(`match API error: ${res.status}`);
-      setResult(toMatchResult(await res.json()));
-    } catch {
-      setError("IDが正しくないか、存在しないポケモンです。");
-    } finally {
-      setLoading(false);
-    }
+    if (selectedA === null || selectedB === null) return;
+    await diagnose({ id_a: selectedA.value, id_b: selectedB.value });
   };
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>ポケモン相性診断</h1>
+      <h1 className={styles.title}>{t.title}</h1>
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.inputs}>
-          <input
-            type="number"
-            value={idA}
-            onChange={(e) => setIdA(e.target.value)}
-            placeholder="ポケモンA の ID"
-            aria-label="ポケモンA の ID"
-            min={1}
-            required
-            className={styles.input}
+          <Select
+            instanceId="pokemon-a"
+            isMulti={false}
+            options={options}
+            value={selectedA}
+            onChange={(opt) => setSelectedA(opt)}
+            isLoading={optionsLoading}
+            placeholder={t.placeholderA}
+            aria-label={t.placeholderA}
+            components={{ Input: SelectInput }}
+            className={styles.select}
+            classNamePrefix="react-select"
           />
-          <input
-            type="number"
-            value={idB}
-            onChange={(e) => setIdB(e.target.value)}
-            placeholder="ポケモンB の ID"
-            aria-label="ポケモンB の ID"
-            min={1}
-            required
-            className={styles.input}
+          <Select
+            instanceId="pokemon-b"
+            isMulti={false}
+            options={options}
+            value={selectedB}
+            onChange={(opt) => setSelectedB(opt)}
+            isLoading={optionsLoading}
+            placeholder={t.placeholderB}
+            aria-label={t.placeholderB}
+            components={{ Input: SelectInput }}
+            className={styles.select}
+            classNamePrefix="react-select"
           />
         </div>
-        <button type="submit" disabled={loading} className={styles.button}>
-          {loading ? "診断中…" : "診断する"}
+        <button
+          type="submit"
+          disabled={diagnosing || selectedA === null || selectedB === null}
+          className={styles.button}
+        >
+          {diagnosing ? t.submitting : t.submit}
         </button>
       </form>
-      {error !== null && <p className={styles.error}>{error}</p>}
-      {result !== null && (
-        <div className={styles.result}>
-          <div className={styles.pokemons}>
-            <PokemonCard name={result.nameA} imageUrl={result.imgA} />
-            <PokemonCard name={result.nameB} imageUrl={result.imgB} />
-          </div>
-          <p className={styles.score}>❤️ 相性: {result.score}%</p>
-        </div>
-      )}
+      {error !== null && <p className={styles.error}>{t.error}</p>}
     </div>
   );
-}
+};

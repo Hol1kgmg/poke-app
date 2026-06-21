@@ -18,10 +18,10 @@ type RawPokemonSpeciesResponse = {
 
 const POKEAPI = "https://pokeapi.co/api/v2";
 
-async function fetchPokemonData(id: number): Promise<{
+const fetchPokemonData = async (id: number): Promise<{
   pokemon: RawPokemonResponse;
   species: RawPokemonSpeciesResponse;
-}> {
+}> => {
   const [pokemonRes, speciesRes] = await Promise.all([
     fetch(`${POKEAPI}/pokemon/${id}`),
     fetch(`${POKEAPI}/pokemon-species/${id}`),
@@ -34,22 +34,17 @@ async function fetchPokemonData(id: number): Promise<{
     speciesRes.json() as Promise<RawPokemonSpeciesResponse>,
   ]);
   return { pokemon, species };
-}
+};
 
-function getJapaneseName(species: RawPokemonSpeciesResponse, fallback: string): string {
+const getJapaneseName = (species: RawPokemonSpeciesResponse, fallback: string): string => {
   const jaHrkt = species.names.find((n) => n.language.name === "ja-Hrkt");
   if (jaHrkt !== undefined) return jaHrkt.name;
   const ja = species.names.find((n) => n.language.name === "ja");
   if (ja !== undefined) return ja.name;
   return fallback;
-}
+};
 
-async function calcScore(
-  id_a: number,
-  id_b: number,
-  dataA: { pokemon: RawPokemonResponse; species: RawPokemonSpeciesResponse },
-  dataB: { pokemon: RawPokemonResponse; species: RawPokemonSpeciesResponse },
-): Promise<number> {
+const calcScore = async (id_a: number, id_b: number, dataA: { pokemon: RawPokemonResponse; species: RawPokemonSpeciesResponse }, dataB: { pokemon: RawPokemonResponse; species: RawPokemonSpeciesResponse }): Promise<number> => {
   const [firstData, secondData] = id_a < id_b ? [dataA, dataB] : [dataB, dataA];
   const parts = [
     firstData.pokemon.types.map((t) => t.type.name).join(","),
@@ -69,7 +64,7 @@ async function calcScore(
     new TextEncoder().encode(str),
   );
   return Math.round((new Uint8Array(hashBuffer)[0] / 255) * 100);
-}
+};
 
 export const Route = createFileRoute("/api/match")({
   server: {
