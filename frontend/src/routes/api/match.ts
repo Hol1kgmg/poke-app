@@ -70,24 +70,29 @@ export const Route = createFileRoute("/api/match")({
   server: {
     handlers: {
       POST: async ({ request }: { request: Request }) => {
-        const { id_a, id_b } = (await request.json()) as { id_a: number; id_b: number };
+        try {
+          const { id_a, id_b } = (await request.json()) as { id_a: number; id_b: number };
 
-        const [dataA, dataB] = await Promise.all([
-          fetchPokemonData(id_a),
-          fetchPokemonData(id_b),
-        ]);
+          const [dataA, dataB] = await Promise.all([
+            fetchPokemonData(id_a),
+            fetchPokemonData(id_b),
+          ]);
 
-        const score = await calcScore(id_a, id_b, dataA, dataB);
+          const score = await calcScore(id_a, id_b, dataA, dataB);
 
-        const result: RawMatchResult = {
-          score,
-          name_a: getJapaneseName(dataA.species, dataA.pokemon.name),
-          name_b: getJapaneseName(dataB.species, dataB.pokemon.name),
-          img_a: dataA.pokemon.sprites.front_default,
-          img_b: dataB.pokemon.sprites.front_default,
-        };
+          const result: RawMatchResult = {
+            score,
+            name_a: getJapaneseName(dataA.species, dataA.pokemon.name),
+            name_b: getJapaneseName(dataB.species, dataB.pokemon.name),
+            img_a: dataA.pokemon.sprites.front_default,
+            img_b: dataB.pokemon.sprites.front_default,
+          };
 
-        return Response.json(result);
+          return Response.json(result);
+        } catch (e) {
+          const message = e instanceof Error ? e.message : 'Internal error';
+          return new Response(message, { status: 500 });
+        }
       },
     },
   },
