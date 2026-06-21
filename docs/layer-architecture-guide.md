@@ -19,7 +19,7 @@
 依存は **上位レイヤーから下位レイヤーへの一方通行** のみ。同階層のスライス同士は互いを import しない。
 
 ```
-app(routes) → widgets → features → aggregates → entities → shared
+app(routes) → pages → widgets → features → aggregates → entities → shared
 ```
 
 - 上位は下位を使える
@@ -106,8 +106,8 @@ UI コンポーネントを作りたい
   ⑤ 複数の entities/features を組み合わせた自己完結ブロック？
      Yes → widgets/
      No  ↓
-  ⑥ ページ全体の構成（FSD App + Pages）？
-     Yes → app(routes)/
+  ⑥ ページ全体の構成（widgets の組み合わせ）？
+     Yes → pages/
 ```
 
 ### BFF リクエストの置き場所
@@ -151,12 +151,20 @@ widgets の UI 固有の一時状態は atom に昇格させず local state（us
 
 ```
 src/
-  routes/                           ← FSD App + Pages（ルーティング・初期化・ページ構成）
+  routes/                           ← ルーティング・アプリ初期化（__root.tsx のみ CSS 許可）
     __root.tsx
-    index.tsx
+    index.tsx                       ← pages/ へ委譲するだけ
     api/                            ← BFF レイヤー（FSD 外）、HTTP 経由で各レイヤーから呼び出す
       orders.ts
       products.ts
+
+  pages/                            ← ページ構成（widgets を組み合わせる、CSS 許可）
+    home/
+      HomePage.tsx
+      HomePage.module.css
+    order-detail/
+      OrderDetailPage.tsx
+      OrderDetailPage.module.css
 
   widgets/                          ← 自己完結型の複合 UI ブロック
     order-list-panel/
@@ -229,14 +237,30 @@ src/
 
 ### app(routes)/
 
-**責務:** ルーティング定義・アプリ初期化・ページ構成（widgets を組み合わせるだけ）
+**責務:** ルーティング定義・アプリ初期化・アプリシェル
 
 | ファイル | 内容 |
 |---|---|
-| `*.tsx` | ページコンポーネント（UI ロジックなし） |
+| `__root.tsx` / `_layout.tsx` | アプリシェル（CSS 許可 — header・sidebar・main の枠組みのみ） |
+| 個別ルートファイル（`index.tsx` 等） | `pages/` へ委譲するだけ（CSS なし） |
 | `loader` | SSR プリフェッチが必要な場合のみ使用 |
 
 カスタム hooks は置かない。
+
+---
+
+### pages/
+
+**責務:** ページ構成（widgets を組み合わせる）・ページ固有のレイアウト
+
+| ファイル | 内容 |
+|---|---|
+| `XxxPage.tsx` | widgets を組み合わせたページコンポーネント |
+| `XxxPage.module.css` | ページ固有のレイアウト（グリッド・スペーシング等）— 任意 |
+
+- カスタム hooks は置かない
+- ビジネスロジックは持たない（すべて widgets / features に委譲）
+- 複数ページで共通するレイアウト構造は widgets に切り出す
 
 ---
 

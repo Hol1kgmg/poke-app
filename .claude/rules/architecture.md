@@ -10,7 +10,7 @@ Full reference: [docs/layer-architecture-guide.md](../docs/layer-architecture-gu
 Dependencies flow in one direction only:
 
 ```
-app(routes) → widgets → features → aggregates → entities → shared
+app(routes) → pages → widgets → features → aggregates → entities → shared
 ```
 
 - Upper layers may import from lower layers
@@ -38,15 +38,16 @@ Want to create a UI component?
   ⑤ Self-contained composite block combining multiple entities/features?
      Yes → widgets/
      No  ↓
-  ⑥ Page-level composition (FSD App + Pages)?
-     Yes → app(routes)/
+  ⑥ Page-level composition (assembles widgets)?
+     Yes → pages/
 ```
 
 ## Layer Responsibilities
 
 | Layer | Responsibility | Naming |
 |---|---|---|
-| `app(routes)/` | FSD App + Pages combined — routing, app init, and page composition (assembles widgets) | — |
+| `app(routes)/` | Routing, app init, and app shell (`__root.tsx`/`_layout.tsx` CSS allowed; individual route files delegate to `pages/`) | — |
+| `pages/` | Page composition (assembles widgets); page-specific layout CSS allowed | — |
 | `routes/api/` | BFF layer (outside FSD) — calls external API / backend | — |
 | `widgets/` | Composite UI blocks; may fetch data when widget-specific complex data is needed | noun (`order-list-panel`) |
 | `features/` | BFF requests that depend on entities/shared, or user actions (mutation/interaction) | verb + noun (`create-order`) |
@@ -57,9 +58,14 @@ Want to create a UI component?
 ## File Placement Rules
 
 ### app(routes)/
-- Page components that compose widgets/features
-- Loader used only for SSR prefetch when needed
-- No custom hooks
+- `__root.tsx` / `_layout.tsx` — app shell (CSS allowed for header/sidebar/main frame only)
+- Individual route files — delegate to `pages/` only (no CSS, no custom hooks)
+- `loader` — SSR prefetch only when needed
+
+### pages/
+- `XxxPage.tsx` — assembles widgets; no business logic, no custom hooks
+- `XxxPage.module.css` — page-specific layout (grid, spacing, etc.) — optional
+- Shared layout structures go to `widgets/` instead
 
 ### routes/api/ (BFF — outside FSD)
 - HTTP endpoints that call external APIs or backend
