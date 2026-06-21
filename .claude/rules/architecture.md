@@ -10,12 +10,13 @@ Full reference: [docs/layer-architecture-guide.md](../docs/layer-architecture-gu
 Dependencies flow in one direction only:
 
 ```
-app(routes) → widgets → features → entities → shared
+app(routes) → widgets → features → aggregates → entities → shared
 ```
 
 - Upper layers may import from lower layers
 - Lower layers must NOT import from upper layers
 - Same-layer slices must NOT import from each other
+- Exception: within `entities/`, composite entities may import from atomic entities (one direction only)
 
 ## UI Component Placement Decision Flow
 
@@ -31,10 +32,13 @@ Want to create a UI component?
   ③ Reusable part depending on a single resource type?
      Yes → entities/xxx/ui/
      No  ↓
-  ④ Self-contained composite block combining multiple entities/features?
+  ④ Reusable part spanning multiple composite entities?
+     Yes → aggregates/xxx/ui/
+     No  ↓
+  ⑤ Self-contained composite block combining multiple entities/features?
      Yes → widgets/
      No  ↓
-  ⑤ Page-level composition (FSD App + Pages)?
+  ⑥ Page-level composition (FSD App + Pages)?
      Yes → app(routes)/
 ```
 
@@ -46,7 +50,8 @@ Want to create a UI component?
 | `routes/api/` | BFF layer (outside FSD) — calls external API / backend | — |
 | `widgets/` | Composite UI blocks; may fetch data when widget-specific complex data is needed | noun (`order-list-panel`) |
 | `features/` | BFF requests that depend on entities/shared, or user actions (mutation/interaction) | verb + noun (`create-order`) |
-| `entities/` | Minimal unit of a domain resource — types, UI, state, and resource-specific data fetching | resource name (`pokemon`) |
+| `aggregates/` | Types, data fetching, and UI spanning multiple composite entities — no mutations, no atoms | noun (`order-summary`) |
+| `entities/` | Minimal unit of a domain resource — types, UI, state, and resource-specific data fetching | resource name (`order`) |
 | `shared/` | Domain-agnostic utilities and UI — no BFF requests | — |
 
 ## File Placement Rules
@@ -74,11 +79,19 @@ Want to create a UI component?
 - `atoms.ts` — transient state scoped to this feature (form inputs, filters)
 - `types.ts` — feature-specific type definitions
 
+### aggregates/
+- `model/types.ts` — type definitions spanning multiple composite entities
+- `model/adapters.ts` — BFF response → aggregate type conversion
+- `model/queryKeys.ts` — queryKey definitions for this aggregate; features/widgets import from here to unify cache keys
+- `ui/` — reusable UI components for the aggregate type
+- `useXxx.ts` — data fetching (useQuery) for the aggregate type
+- No mutations, no atoms
+
 ### entities/
 - `ui/` — resource-specific reusable UI parts
 - `model/types.ts` — domain type definitions
 - `model/adapters.ts` — BFF response → internal type conversion (called from own hooks or `features/`)
-- `model/atoms.ts` — resource-scoped selection state (e.g., `selectedPokemonId`)
+- `model/atoms.ts` — resource-scoped selection state (e.g., `selectedOrderId`)
 - `model/queryKeys.ts` — queryKey definitions for this entity; features/widgets import from here to unify cache keys
 - `useXxx.ts` — resource-specific data fetching (when depends only on shared)
 
@@ -92,7 +105,7 @@ Want to create a UI component?
 
 | Scope | Location | Examples |
 |---|---|---|
-| Specific resource | `entities/xxx/model/atoms.ts` | `selectedPokemonIdAtom`, `currentUserAtom` |
+| Specific resource | `entities/xxx/model/atoms.ts` | `selectedOrderIdAtom`, `currentUserAtom` |
 | Feature-scoped transient state | `features/xxx/atoms.ts` | `searchQueryAtom`, `formFiltersAtom` |
 | Domain-agnostic global state | `shared/state/` | `sidebarOpenAtom`, `themeAtom` |
 
@@ -107,7 +120,7 @@ Atom references follow the same FSD dependency direction:
 
 | # | Prohibited | Alternative |
 |---|---|---|
-| 1 | Same-layer slice imports (`entities/a` → `entities/b`) | Compose in the layer above |
+| 1 | Same-layer slice imports (`entities/a` → `entities/b`) | Compose in the layer above (exception: composite→atomic within `entities/` is allowed) |
 | 2 | Lower layer importing from upper layer (`entities` → `features`) | Pass as props or elevate to `shared/state/` |
 | 3 | BFF requests from `shared/` | Place in `entities/`, `features/`, or `widgets/` |
 | 4 | Domain logic placed in `shared/` | Place in `entities/` or `features/` |

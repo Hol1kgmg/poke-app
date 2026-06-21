@@ -9,27 +9,27 @@ Full reference: [docs/coding-guide.md](../docs/coding-guide.md)
 
 | Target | Convention | Examples |
 |---|---|---|
-| Component files | PascalCase | `PokemonCard.tsx` |
-| Style files | Same name as component | `PokemonCard.module.css` |
+| Component files | PascalCase | `OrderCard.tsx` |
+| Style files | Same name as component | `OrderCard.module.css` |
 | Hooks | camelCase with `use` prefix | `useFavorite.ts` |
 | Utilities / logic | camelCase | `adapters.ts`, `types.ts` |
-| FSD slice directories | kebab-case | `search-pokemon/`, `pokemon-panel/` |
+| FSD slice directories | kebab-case | `search-order/`, `order-list-panel/` |
 
 ## Types
 
 | Target | Convention | Examples |
 |---|---|---|
-| Branded Types | PascalCase, no kind suffix | `PokemonId`, `PokemonName` |
-| BFF response types | `Raw` prefix | `RawPokemon` |
-| Internal domain types | PascalCase | `Pokemon`, `PokemonType` |
+| Branded Types | PascalCase, no kind suffix | `OrderId`, `OrderStatus` |
+| BFF response types | `Raw` prefix | `RawOrder` |
+| Internal domain types | PascalCase | `Order`, `Product` |
 | Props types | `Props` (unified) | `type Props = { ... }` |
 
 ## Functions and Variables
 
 | Target | Convention | Examples |
 |---|---|---|
-| Adapter functions | `to` prefix | `toPokemon`, `toPokemonList` |
-| Atom variables | `Atom` suffix | `selectedPokemonIdAtom` |
+| Adapter functions | `to` prefix | `toOrder`, `toOrderList` |
+| Atom variables | `Atom` suffix | `selectedOrderIdAtom` |
 
 ## Layer Naming Patterns
 
@@ -37,4 +37,4 @@ Full reference: [docs/coding-guide.md](../docs/coding-guide.md)
 |---|---|---|---|
 | `features/` | verb + noun (kebab-case) | `create-order`, `toggle-favorite` | `order-management`, `user-info` |
 | `widgets/` | noun (kebab-case) | `order-list-panel`, `sidebar-navigation` | `create-order` |
-| `entities/` | resource name (kebab-case) | `pokemon`, `pokemon-type` | `get-pokemon` |
+| `entities/` | resource name (kebab-case) | `order`, `product` | `get-order` |
