@@ -9,6 +9,8 @@ allowBuilds:
   esbuild: true
   lefthook: true
   lightningcss: true
+  sharp: true
+  workerd: true
 
 # リリース直後のパッケージを自動インストールしないサプライチェーン攻撃対策（48時間 = 2880分）
 minimumReleaseAge: 2880

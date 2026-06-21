@@ -27,3 +27,6 @@ test: ## Unit tests
 
 test-e2e: ## E2E tests
 	task test:e2e
+
+deploy: ## Deploy to Cloudflare Workers
+	task deploy

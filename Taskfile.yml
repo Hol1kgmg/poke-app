@@ -55,3 +55,7 @@ tasks:
   typecheck:
     desc: Run TypeScript type check
     cmd: pnpm --dir frontend typecheck {{.CLI_ARGS}}
+
+  deploy:
+    desc: Deploy to Cloudflare Workers
+    cmd: pnpm --dir frontend deploy {{.CLI_ARGS}}
