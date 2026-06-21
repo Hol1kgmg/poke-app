@@ -15,22 +15,16 @@
   "enableAllProjectMcpServers": true,
   "permissions": {
     "allow": [
-      "Bash(git add:*)",
-      "Bash(git status:*)",
-      "Bash(git log:*)",
-      "Bash(git show:*)",
-      "Bash(git diff:*)",
-      "Bash(echo 'exit: $?')",
-      "Bash(tree:*)",
-      "Bash(pnpm:*)",
-      "Bash(curl:*)",
-      "Bash(which:*)",
-      "Bash(type:*)",
-      "Bash(source ~/.zshrc)",
-      "WebFetch(domain:github.com)",
-      "WebFetch(domain:nixos.wiki)",
+      "Bash(git *)",
+      "Bash(gh *)",
+      "Bash(task *)",
+      "Bash(make *)",
+      "Bash(which *)",
+      "Bash(type *)",
+      "Bash(tree *)",
+      "WebFetch",
       "WebSearch",
-      "Write(**/*.md)",
+      "Write",
       "Skill"
     ],
     "deny": [
@@ -41,7 +35,8 @@
       "Bash(sed:*)",
       "Bash(awk:*)",
       "Bash(head:*)",
-      "Bash(tail:*)"
+      "Bash(tail:*)",
+      "Bash(curl *)"
     ]
   },
   "statusLine": {

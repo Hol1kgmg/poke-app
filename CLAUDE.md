@@ -1,6 +1,6 @@
 # Project Overview
 
-ポケモン相性診断アプリ（TanStack Start / React 19 / FSD）
+Pokemon compatibility diagnosis app (TanStack Start / React 19 / FSD)
 
 # Setup and Basic Usage
 
@@ -20,13 +20,35 @@ Setup instructions and basic usage are documented in [README.md](./README.md).
 
 ## Task Runner
 
-Use `task` to run frontend scripts from the project root (requires `brew install go-task`).
+Commands are managed by `Makefile` and `Taskfile`.
 
-- `task dev` — start the development server
-- `task typecheck` — TypeScript type check
-- `task lint` — linter
-- `task test` — unit tests
-- `task build` — production build
+| File | Purpose | Target |
+|---|---|---|
+| `Makefile` | Commands that don't require CLI_ARGS (env setup, etc.) | Humans / CI |
+| `Taskfile` | Commands that accept CLI_ARGS (AI agent interface) | Claude Code |
+
+### Makefile (environment setup)
+
+```
+make install   # Install dependencies
+make dev       # Start development server
+make build     # Production build
+make typecheck # TypeScript type check
+make lint      # Linter
+make test      # Unit tests
+```
+
+### Taskfile (development / verification)
+
+AI agents must use only these commands — never call `pnpm` directly.
+
+```
+task dev          # Start development server
+task typecheck    # TypeScript type check
+task lint         # Linter
+task test         # Unit tests
+task build        # Production build
+```
 
 Options are passed after `--`: e.g., `task dev -- --port 3001`
 

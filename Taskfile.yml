@@ -1,6 +1,13 @@
 version: '3'
 
+# This file is the AI agent interface for running project commands.
+# Humans use Makefile (env setup) or pnpm directly.
+
 tasks:
+  list:
+    desc: Show available commands
+    cmd: task --list-all
+
   install:
     desc: Install frontend dependencies
     cmd: pnpm --dir frontend install {{.CLI_ARGS}}

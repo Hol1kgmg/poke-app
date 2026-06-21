@@ -1,21 +1,15 @@
 # poke-app
 
-ポケモン相性診断アプリ
+ポケモン相性診断アプリ（TanStack Start / React 19 / FSD）
 
 ## 前提条件
 
-mise がインストールされ、シェルに統合されていること。
+[mise](https://mise.jdx.dev/) がインストールされ、シェルに統合されていること。
 
 macOS (Homebrew):
 
 ```bash
 brew install mise
-```
-
-Homebrew を使わない場合:
-
-```bash
-curl https://mise.run | sh
 ```
 
 シェル統合 (zsh):
@@ -33,13 +27,12 @@ source ~/.zshrc
 mise trust && mise install
 ```
 
-node / pnpm / gitleaks が自動でインストールされます。
+Node / pnpm / gitleaks が自動でインストールされます。
 
 ### 2. 依存パッケージのインストール
 
 ```bash
-cd frontend
-pnpm install
+make install
 ```
 
 `pnpm install` 実行時に `lefthook install` が自動で走り、Git フックが設定されます。
@@ -47,33 +40,26 @@ pnpm install
 ### 3. 開発サーバーの起動
 
 ```bash
-cd frontend
-pnpm dev
+make dev
 ```
 
 `http://localhost:3000` でアクセスできます。
 
 ## 開発コマンド
 
-```bash
-# 開発サーバー起動
-pnpm dev
+利用可能なコマンドの一覧は `make list` で確認できます。
 
-# 型チェック
-pnpm typecheck
-
-# Lint（自動修正あり）
-pnpm lint
-
-# マークアップ Lint（自動修正あり）
-pnpm lint:markup
-
-# フォーマット
-pnpm format
-
-# テスト
-pnpm test
-```
+| コマンド | 説明 |
+|---|---|
+| `make install` | 依存パッケージのインストール |
+| `make dev` | 開発サーバー起動 |
+| `make build` | プロダクションビルド |
+| `make preview` | ビルド成果物のプレビュー |
+| `make typecheck` | TypeScript 型チェック |
+| `make lint` | リンター |
+| `make format` | コードフォーマット |
+| `make test` | ユニットテスト |
+| `make test-e2e` | E2E テスト |
 
 ## コミット時の自動チェック
 
