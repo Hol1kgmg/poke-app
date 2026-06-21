@@ -61,11 +61,16 @@ Want to create a UI component?
 - `__root.tsx` / `_layout.tsx` — app shell (CSS allowed for header/sidebar/main frame only)
 - Individual route files — delegate to `pages/` only (no CSS, no custom hooks)
 - `loader` — SSR prefetch only when needed
+- **1-to-1 rule**: each route file must correspond to exactly one page component in `pages/`
 
 ### pages/
-- `XxxPage.tsx` — assembles widgets; no business logic, no custom hooks
-- `XxxPage.module.css` — page-specific layout (grid, spacing, etc.) — optional
+Each page is a directory: `pages/XxxName/`
+- `page.tsx` — assembles widgets; exports `function XxxPage()`; no business logic, no custom hooks
+- `page.module.css` — page-specific layout (grid, spacing, etc.) — optional
+- `index.tsx` — barrel: `export { XxxPage } from "./page"`
 - Shared layout structures go to `widgets/` instead
+- **1-to-1 rule**: `pages/` and `routes/` maintain a strict 1-to-1 correspondence
+- Page names reflect the **route position**, not the feature content (e.g., `routes/index.tsx` → `pages/Index/` with component `IndexPage`)
 
 ### routes/api/ (BFF — outside FSD)
 - HTTP endpoints that call external APIs or backend

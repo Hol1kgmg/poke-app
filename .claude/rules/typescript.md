@@ -56,6 +56,21 @@ Never use `!`. Replace with:
 - Explicit `undefined` check: `if (value !== undefined)`
 - Optional chaining: `value?.property`
 
+## 関数定義スタイル
+
+`function` 宣言・関数式は禁止。`const` + アロー関数で統一する（lint: `prefer-arrow-functions/prefer-arrow-functions`）。
+
+```ts
+// ✅
+export const fetchPokemon = async (id: PokemonId): Promise<Pokemon> => { ... }
+export const PokemonCard = ({ pokemon }: Props) => { ... }
+
+// ❌
+export function fetchPokemon(id: PokemonId) { ... }
+export function PokemonCard({ pokemon }: Props) { ... }
+export const fetchPokemon = function(id: PokemonId) { ... }
+```
+
 ## Raw Type Naming
 
 BFF response types must use the `Raw` prefix:

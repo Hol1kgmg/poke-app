@@ -158,13 +158,15 @@ src/
       orders.ts
       products.ts
 
-  pages/                            ← ページ構成（widgets を組み合わせる、CSS 許可）
-    home/
-      HomePage.tsx
-      HomePage.module.css
-    order-detail/
-      OrderDetailPage.tsx
-      OrderDetailPage.module.css
+  pages/                            ← ページ構成（routes/ と 1対1 対応、CSS 許可）
+    Index/                          ← routes/index.tsx に対応
+      page.tsx                      ← export function IndexPage()
+      page.module.css
+      index.tsx                     ← export { IndexPage } from "./page"
+    Detail/                         ← routes/detail.$id.tsx に対応
+      page.tsx                      ← export function DetailPage()
+      page.module.css
+      index.tsx                     ← export { DetailPage } from "./page"
 
   widgets/                          ← 自己完結型の複合 UI ブロック
     order-list-panel/
@@ -247,20 +249,28 @@ src/
 
 カスタム hooks は置かない。
 
+**`routes/` と `pages/` は 1対1 対応する。** ルートファイルを追加したら、対応するページコンポーネントを `pages/` に1つ作成する。
+
 ---
 
 ### pages/
 
 **責務:** ページ構成（widgets を組み合わせる）・ページ固有のレイアウト
 
+各ページは `pages/XxxName/` ディレクトリ単位で構成する。
+
 | ファイル | 内容 |
 |---|---|
-| `XxxPage.tsx` | widgets を組み合わせたページコンポーネント |
-| `XxxPage.module.css` | ページ固有のレイアウト（グリッド・スペーシング等）— 任意 |
+| `page.tsx` | widgets を組み合わせたページコンポーネント（`export function XxxPage()`） |
+| `page.module.css` | ページ固有のレイアウト（グリッド・スペーシング等）— 任意 |
+| `index.tsx` | 公開 API（`export { XxxPage } from "./page"`） |
 
 - カスタム hooks は置かない
 - ビジネスロジックは持たない（すべて widgets / features に委譲）
 - 複数ページで共通するレイアウト構造は widgets に切り出す
+- **命名はルート上の位置から付ける。機能名（feature 名）ではない。**
+  - `routes/index.tsx` → `pages/Index/` （コンポーネント名: `IndexPage`）
+  - `routes/detail.$id.tsx` → `pages/Detail/` （コンポーネント名: `DetailPage`）
 
 ---
 

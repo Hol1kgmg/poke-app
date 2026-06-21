@@ -198,6 +198,30 @@ type Props = { orderId: number };
 
 ---
 
+## 関数定義スタイル
+
+`function` 宣言・関数式は禁止。`const` + アロー関数で統一する（lint: `prefer-arrow-functions/prefer-arrow-functions`）。
+
+```ts
+// ✅ const アロー関数
+export const fetchPokemon = async (id: PokemonId): Promise<Pokemon> => {
+  // ...
+};
+
+export const PokemonCard = ({ pokemon }: Props) => {
+  return <div>{pokemon.name}</div>;
+};
+
+// ❌ function 宣言
+export function fetchPokemon(id: PokemonId) { ... }
+export function PokemonCard({ pokemon }: Props) { ... }
+
+// ❌ function 式
+export const fetchPokemon = function(id: PokemonId) { ... }
+```
+
+---
+
 ## スタイリング
 
 - `.module.css` はコンポーネントと**同じディレクトリに同名**で配置する
@@ -292,6 +316,7 @@ import { searchQueryAtom } from "#/features/search-order/atoms";
 | 9 | 他の feature の serverFn を呼び出す | 各 feature が独立して定義する |
 | 10 | ブロック全体に `"use client"` を付与する | インタラクション部分のみ切り出す |
 | 11 | `widgets/` / `features/` でデータ取得する | props / コンテキスト経由で受け取る |
+| 12 | `function` 宣言・`function` 式を使う | `const` + アロー関数に統一する |
 
 ---
 
