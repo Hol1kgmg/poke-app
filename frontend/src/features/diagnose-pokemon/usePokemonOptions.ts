@@ -32,18 +32,38 @@ export const usePokemonOptions = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await fetch("/api/pokemon-list");
+    const PAGE_SIZE = 30;
+    const TOTAL = 151;
+    let cancelled = false;
+
+    const offsets = Array.from(
+      { length: Math.ceil(TOTAL / PAGE_SIZE) },
+      (_, i) => i * PAGE_SIZE,
+    );
+
+    Promise.all(
+      offsets.map(async (offset) => {
+        const limit = Math.min(PAGE_SIZE, TOTAL - offset);
+        const res = await fetch(`/api/pokemon-list?offset=${offset}&limit=${limit}`);
         if (!res.ok) throw new Error(`pokemon-list error: ${res.status}`);
-        setItems((await res.json()) as RawPokemonListItem[]);
-      } catch {
+        return (await res.json()) as RawPokemonListItem[];
+      }),
+    )
+      .then((pages) => {
+        if (cancelled) return;
+        setItems(pages.flat().sort((a, b) => a.id - b.id));
+      })
+      .catch(() => {
+        if (cancelled) return;
         setError("ポケモン一覧の取得に失敗しました。");
-      } finally {
-        setLoading(false);
-      }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
     };
-    load();
   }, []);
 
   const options = items.map((item) => toOption(item, isJa));
